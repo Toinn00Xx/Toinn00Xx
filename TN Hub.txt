@@ -1,0 +1,318 @@
+local DiscordLib = loadstring(game:HttpGet"https://raw.githubusercontent.com/dawid-scripts/UI-Libs/main/discord%20lib.txt")()
+
+local win = DiscordLib:Window("TN Hub - Universal")
+
+local serv = win:Server("Preview", "")
+
+local btns = serv:Channel("MAIN")
+
+btns:Button("ESP PLAYER", function()
+-- Função para criar uma caixa ao redor do jogador
+local function createESP(player)
+    local espBox = Drawing.new("Square")
+    espBox.Visible = true
+    espBox.Color = Color3.new(1, 1, 1) -- Cor branca
+    espBox.Thickness = 2
+    espBox.Transparency = 1
+    espBox.Filled = false -- Apenas bordas
+
+    local espName = Drawing.new("Text")
+    espName.Visible = true
+    espName.Color = Color3.new(1, 1, 1) -- Cor branca
+    espName.Size = 20
+    espName.Center = true
+    espName.Outline = true
+    espName.OutlineColor = Color3.new(0, 0, 0) -- Cor preta para o contorno
+    espName.Text = player.Name
+
+    local function update()
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local rootPart = player.Character.HumanoidRootPart
+            local screenPos, onScreen = workspace.CurrentCamera:WorldToViewportPoint(rootPart.Position)
+            if onScreen then
+                espBox.Size = Vector2.new(2000 / screenPos.Z, 3000 / screenPos.Z)
+                espBox.Position = Vector2.new(screenPos.X - espBox.Size.X / 2, screenPos.Y - espBox.Size.Y / 2)
+                espName.Position = Vector2.new(screenPos.X, screenPos.Y - espBox.Size.Y / 2 - 20)
+                espBox.Visible = true
+                espName.Visible = true
+            else
+                espBox.Visible = false
+                espName.Visible = false
+            end
+        else
+            espBox.Visible = false
+            espName.Visible = false
+        end
+    end
+
+    game:GetService("RunService").RenderStepped:Connect(update)
+end
+
+-- Aplicar ESP a todos os jogadores
+for _, player in pairs(game:GetService("Players"):GetPlayers()) do
+    if player ~= game.Players.LocalPlayer then
+        createESP(player)
+    end
+end
+
+-- Aplicar ESP a novos jogadores que entrarem no jogo
+game:GetService("Players").PlayerAdded:Connect(function(player)
+    if player ~= game.Players.LocalPlayer then
+        createESP(player)
+    end
+end)
+
+end)
+
+btns:Seperator()
+
+btns:Button("SPEED 100l", function()
+-- Obtém o jogador local
+local player = game.Players.LocalPlayer
+
+-- Função para definir a velocidade do jogador
+local function setSpeed()
+    if player.Character and player.Character:FindFirstChild("Humanoid") then
+        player.Character.Humanoid.WalkSpeed = 100
+    end
+end
+
+-- Conecta a função ao evento CharacterAdded para garantir que a velocidade seja definida quando o personagem for carregado
+player.CharacterAdded:Connect(setSpeed)
+
+-- Define a velocidade imediatamente se o personagem já estiver carregado
+if player.Character then
+    setSpeed()
+end
+
+end)
+
+btns:Seperator()
+
+btns:Button("JUMP POWER 80", function()
+-- Obtém o jogador local
+local player = game.Players.LocalPlayer
+
+-- Função para definir o poder de salto do jogador
+local function setJumpPower()
+    if player.Character and player.Character:FindFirstChild("Humanoid") then
+        player.Character.Humanoid.UseJumpPower = true
+        player.Character.Humanoid.JumpPower = 80
+    end
+end
+
+-- Conecta a função ao evento CharacterAdded para garantir que o poder de salto seja definido quando o personagem for carregado
+player.CharacterAdded:Connect(setJumpPower)
+
+-- Define o poder de salto imediatamente se o personagem já estiver carregado
+if player.Character then
+    setJumpPower()
+end
+
+end)
+
+btns:Seperator()
+
+btns:Button("NOCLIP", function()
+-- Script para atravessar paredes (noclip) no Roblox
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Função para ativar o noclip
+local function noclip()
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") and part.CanCollide then
+            part.CanCollide = false
+        end
+    end
+end
+
+-- Função para desativar o noclip
+local function clip()
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") and not part.CanCollide then
+            part.CanCollide = true
+        end
+    end
+end
+
+-- Função para verificar e manter o noclip ativo
+local function maintainNoclip()
+    while true do
+        noclip()
+        wait(1) -- Verifica a cada 1 segundo
+    end
+end
+
+-- Ativar noclip ao iniciar o jogo
+noclip()
+
+-- Manter noclip ativo
+spawn(maintainNoclip)
+
+-- Desativar noclip ao sair do jogo
+game.Players.LocalPlayer.CharacterRemoving:Connect(clip)
+end)
+
+btns:Seperator()
+
+local btns = serv:Channel("ADMINS")
+
+btns:Button("ADMIN OP", function()
+loadstring(game:HttpGet('https://raw.githubusercontent.com/Dvrknvss/UniversalFEScriptHub/main/Script'))()
+
+end)
+
+btns:Button("FE Admin", function()
+loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+
+end)
+
+local btns = serv:Channel("NO RECOIL")
+
+btns:Button("NO RECOIL", function()
+-- LocalScript dentro de StarterPlayerScripts
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+
+local aimAssistEnabled = true
+local aimAssistStrength = 0.5 -- Ajuste a força do auxílio de mira (0 a 1)
+
+local function getClosestEnemyPlayer()
+    local closestPlayer = nil
+    local shortestDistance = math.huge
+
+    for _, targetPlayer in pairs(Players:GetPlayers()) do
+        if targetPlayer ~= player and targetPlayer.Team ~= player.Team and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local targetPosition = targetPlayer.Character.HumanoidRootPart.Position
+            local screenPoint = Camera:WorldToViewportPoint(targetPosition)
+            local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - Vector2.new(mouse.X, mouse.Y)).magnitude
+
+            if distance < shortestDistance then
+                closestPlayer = targetPlayer
+                shortestDistance = distance
+            end
+        end
+    end
+
+    return closestPlayer
+end
+
+RunService.RenderStepped:Connect(function()
+    if aimAssistEnabled then
+        local closestPlayer = getClosestEnemyPlayer()
+        if closestPlayer and closestPlayer.Character and closestPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local targetPosition = closestPlayer.Character.HumanoidRootPart.Position
+            local screenPoint = Camera:WorldToViewportPoint(targetPosition)
+            local aimPosition = Vector2.new(screenPoint.X, screenPoint.Y)
+
+            -- Ajusta a posição da mira diretamente para o corpo do personagem inimigo
+            local newMousePosition = Vector2.new(mouse.X, mouse.Y):Lerp(aimPosition, aimAssistStrength)
+            UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+            mouse.X = newMousePosition.X
+            mouse.Y = newMousePosition.Y
+        end
+    end
+end)
+end)
+
+serv:Channel("by freitasx.lxz")
+
+
+win:Server("Main", "http://www.roblox.com/asset/?id=6031075938")
+.Y = newMousePosition.Y
+        end
+    end
+end)
+end)
+
+btns:Button("TEAM CHECK", function()
+-- LocalScript dentro de StarterPlayerScripts
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+
+local player = Players.LocalPlayer
+local mouse = player:GetMouse()
+
+local aimAssistEnabled = true
+local aimAssistStrength = 0.5 -- Ajuste a força do auxílio de mira (0 a 1)
+
+local function getClosestEnemyPlayer()
+    local closestPlayer = nil
+    local shortestDistance = math.huge
+
+    for _, targetPlayer in pairs(Players:GetPlayers()) do
+        if targetPlayer ~= player and targetPlayer.Team ~= player.Team and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local targetPosition = targetPlayer.Character.HumanoidRootPart.Position
+            local screenPoint = Camera:WorldToViewportPoint(targetPosition)
+            local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - Vector2.new(mouse.X, mouse.Y)).magnitude
+
+            if distance < shortestDistance then
+                closestPlayer = targetPlayer
+                shortestDistance = distance
+            end
+        end
+    end
+
+    return closestPlayer
+end
+
+RunService.RenderStepped:Connect(function()
+    if aimAssistEnabled then
+        local closestPlayer = getClosestEnemyPlayer()
+        if closestPlayer and closestPlayer.Character and closestPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local targetPosition = closestPlayer.Character.HumanoidRootPart.Position
+            local screenPoint = Camera:WorldToViewportPoint(targetPosition)
+            local aimPosition = Vector2.new(screenPoint.X, screenPoint.Y)
+
+            -- Ajusta a posição da mira diretamente para o corpo do personagem inimigo
+            local newMousePosition = Vector2.new(mouse.X, mouse.Y):Lerp(aimPosition, aimAssistStrength)
+            UserInputService.MouseBehavior = Enum.MouseBehavior.LockCenter
+            mouse.X = newMousePosition.X
+            mouse.Y = newMousePosition.Y
+        end
+    end
+end)
+end)
+
+serv:Channel("by freitasx.lxz")
+
+
+win:Server("Main", "http://www.roblox.com/asset/?id=6031075938")
+Collide = false
+    bullet.CFrame = CFrame.new(player.Character.Head.Position, targetPosition)
+    bullet.Parent = workspace
+
+    local direction = (targetPosition - bullet.Position).unit
+    local speed = 100
+
+    game:GetService("RunService").RenderStepped:Connect(function()
+        bullet.CFrame = bullet.CFrame + direction * speed * game:GetService("RunService").RenderStepped:Wait()
+    end)
+end
+
+local function onInputBegan(input, gameProcessed)
+    if gameProcessed then return end
+
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        createBullet(mouse.Hit.p)
+    end
+end
+
+UserInputService.InputBegan:Connect(onInputBegan)
+end)
+
+serv:Channel("by freitasx.lxz")
+
+
+win:Server("Main", "http://www.roblox.com/asset/?id=6031075938")
