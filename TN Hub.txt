@@ -1,1 +1,1 @@
-local DiscordLib = loadstring(game:HttpGet"https://raw.githubusercontent.com/Toinn00Xx/Toinn00Xx/main/TN%20Hub.txt")()
+loadstring(game:HttpGet"https://raw.githubusercontent.com/Toinn00Xx/Toinn00Xx/main/TN%20Hub.txt")()
